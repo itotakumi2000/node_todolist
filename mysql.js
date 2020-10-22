@@ -1,23 +1,37 @@
-const mysql = require('mysql');
+var mysql = require('mysql');
 
-const connection = mysql.createConnection({
-	host : 'localhost',
-  user : 'root',
-  password: '@Takumi0730',
-	database: 'todolist'
-});
+var dbConfig = {
+  host     : 'localhost', //接続先ホスト
+  user     : 'root',      //ユーザー名
+  password : '@Takumi0730',          //パスワード
+  database : 'todolist'       //DB名
+};
 
-// 接続
-connection.connect();
+var connection;
 
-// userdataの取得
-connection.query('SELECT * from todoitems;', function (err, rows, fields) {
-	if (err) { console.log('err: ' + err); } 
+function handleDisconnect() {
+    console.log('create mysql connection');
+    connection = mysql.createConnection(dbConfig); //接続する準備
 
-	console.log('name: ' + rows[0].item);
-	console.log('id: ' + rows[0].id);
+    //接続
+    connection.connect(function(err) {
+        if(err) {
+            console.log('error when connecting to db:', err);
+            setTimeout(handleDisconnect, 2000); //2秒待ってから処理
+        }
+    });
 
-});
+    //error時の処理
+    connection.on('error', function(err) {
+        console.log('db error', err);
+        if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
 
-// 接続終了
-connection.end();
+    module.exports = connection; //connectionを(他のファイルから)requireで呼び出せるようにする
+}
+
+handleDisconnect();

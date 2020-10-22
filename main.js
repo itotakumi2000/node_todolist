@@ -1,7 +1,14 @@
 var http = require('http');
 var html = require('fs').readFileSync('index.html');
+var connection = require('./mysql');
 
 let todoList = [];
+
+//テーブルの初期化
+connection.query('truncate table todoitems;', function (err, rows, fields) {
+  if (err) { console.log('err: ' + err); } 
+  console.log('DELETED');
+});
 
 http.createServer(function(req, res) {
   if(req.method === 'GET') {
@@ -13,13 +20,21 @@ http.createServer(function(req, res) {
     req.on('data', function(chunk) {data += chunk})
     .on('end', function() {
       let todoItem = data.substr(5)
-      todoList.push(todoItem)
-      for(let i=0; i<todoList.length; i++){
-        todoList[i]="<div class=\"todoItem\">"+todoList[i]+"</div>"
-      }
-      html = html.toString().replace(/<div class="todoitem"><\/div>/g,todoList[todoList.length-1]+'<div class="todoitem"></div>')
-      res.end(html);
+      connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows, fields) {
+        if (err) { console.log('err: ' + err); } 
       
+        console.log('YATAAAAAA');
+      
+      });
+      
+      connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+        if (err) { console.log('err: ' + err); } 
+        for(let i=0; i<rows.length; i++){
+          todoList[i]="<div class=\"todoItem\">"+rows[i].item+"</div>"
+        }
+        html = html.toString().replace(/<div class="todoitem"><\/div>/g,todoList[todoList.length-1]+'<div class="todoitem"></div>')
+        res.end(html);
+      });
     })
     
   }
