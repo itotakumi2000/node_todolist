@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/itotakumi2000/node_todolist#readme",
   "dependencies": {
-    "jsdom": "^16.4.0"
+    "jsdom": "^16.4.0",
+    "mysql": "^2.18.1"
   }
 }
