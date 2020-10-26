@@ -29,21 +29,17 @@ http.createServer(function(req, res) {
         connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
           if (err) { console.log('err: ' + err); } 
           let del;
-          if(rows[id]){
+          if(rows[id]||rows[id-1]){
             del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="main.js"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form>'
-            html = html.toString().replace(del,"");
             console.log(del)
-          }else if(rows[id-1]){
-            del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="main.js"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form>'
             html = html.toString().replace(del,"");
-            console.log(del)
           }
         });
-        connection.query('DELETE FROM todoitems WHERE id='+id+';', function (err, rows, fields) {
-          if (err) { console.log('err: ' + err); } 
+        // connection.query('DELETE FROM todoitems WHERE id='+id+';', function (err, rows, fields) {
+        //   if (err) { console.log('err: ' + err); } 
         
-          console.log('DELETED!!!!')
-        });
+        //   console.log('DELETED!!!!')
+        // });
         res.end(html);
         return;
       }
