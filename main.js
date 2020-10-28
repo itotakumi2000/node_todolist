@@ -22,28 +22,36 @@ http.createServer(function(req, res) {
     req.on('data', function(chunk) {data += chunk})
     .on('end', function() {
       let todoItem = data.substr(5)
+      //POSTの内容をデコード、日本語と空白に対応
       todoItem=decodeURIComponent(todoItem.replace(/\+/g, "%20"));
 
+      //DELETEメソッドの処理
       if(todoItem.slice(0,9) === "od=DELETE"){
         let id=todoItem.slice(13)
         connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
           if (err) { console.log('err: ' + err); } 
           let del;
+
           if(rows[id]||rows[id-1]){
             del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="main.js"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form>'
-            console.log(del)
             html = html.toString().replace(del,"");
           }
         });
-        // connection.query('DELETE FROM todoitems WHERE id='+id+';', function (err, rows, fields) {
-        //   if (err) { console.log('err: ' + err); } 
-        
-        //   console.log('DELETED!!!!')
-        // });
+
+
+        connection.query('UPDATE todoitems SET isdone=isdone+1 WHERE id='+id+';', function (err, rows, fields) {
+          if (err) { console.log('err: ' + err); } 
+        });
+
+        connection.query('DELETE FROM todoitems WHERE isdone=2;', function (err, rows, fields) {
+          if (err) { console.log('err: ' + err); } 
+        });
+
         res.end(html);
         return;
       }
 
+      //POSTメソッドの処理
       connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows, fields) {
         if (err) { console.log('err: ' + err); } 
       });
