@@ -34,7 +34,7 @@ http.createServer(function(req, res) {
 
           //HTMLを削除
           if(rows[id]||rows[id-1]){
-            del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="main.js"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form>'
+            del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="main.js"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form><form method="POST" action="main.js"><input type="text" name="name" /><input type="submit" value="更新" /><input type="hidden" name="_method" value="PUT" /><input type="hidden" name="id" value="'+id+'" /></form>'
             html = html.toString().replace(del,"");
           }
         });
@@ -52,6 +52,26 @@ http.createServer(function(req, res) {
         return;
       }
 
+      if(todoItem.match(/_method=PUT/)){
+        let content_num = todoItem.indexOf("&")
+        let content=todoItem.substr(0,content_num);
+        let id_num = todoItem.substr(content_num + 16);
+
+        connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+          if (err) { console.log('err: ' + err); } 
+          if(rows[id_num]||rows[id_num-1]){
+            html = html.toString().replace(rows[id_num-1].item,content)
+          }
+          res.end(html);
+        });
+
+        connection.query('UPDATE todoitems SET item=\"'+content+'\" WHERE id='+id_num+';', function (err, rows, fields) {
+          if (err) { console.log('err: ' + err); } 
+        });
+
+        return;
+      }
+
       //POSTメソッドの処理
       connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows, fields) {
         if (err) { console.log('err: ' + err); } 
@@ -60,7 +80,7 @@ http.createServer(function(req, res) {
       connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
         if (err) { console.log('err: ' + err); } 
         for(let i=0; i<rows.length; i++){
-          todoList[i]="<div class=\"todoItem\">"+rows[i].item+"</div><form method=\"POST\" action=\"main.js\"><input type=\"submit\" value=\"削除\" /><input type=\"hidden\" name=\"_method\" value=\"DELETE\" /><input type=\"hidden\" name=\"id\" value=\""+rows[i].id+"\" /></form>"
+          todoList[i]="<div class=\"todoItem\">"+rows[i].item+"</div><form method=\"POST\" action=\"main.js\"><input type=\"submit\" value=\"削除\" /><input type=\"hidden\" name=\"_method\" value=\"DELETE\" /><input type=\"hidden\" name=\"id\" value=\""+rows[i].id+"\" /></form><form method=\"POST\" action=\"main.js\"><input type=\"text\" name=\"name\" /><input type=\"submit\" value=\"更新\" /><input type=\"hidden\" name=\"_method\" value=\"PUT\" /><input type=\"hidden\" name=\"id\" value=\""+rows[i].id+"\" /></form>"
         }
         html = html.toString().replace(/<div class="todoitem"><\/div>/g,todoList[todoList.length-1]+'<div class="todoitem"></div>')
         res.writeHead(303, { 'Location': '/' });
