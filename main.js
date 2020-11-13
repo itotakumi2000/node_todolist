@@ -2,8 +2,6 @@ var http = require('http');
 var connection = require('./mysql');
 var express = require("express");
 var app = express();
-var fs = require('fs');
-var ejs = require('ejs');
 
 app.set("view engine", "ejs")
 
@@ -20,6 +18,7 @@ app.get('/', function (req, res) {
   var data = {
     method: "get"
   };
+  
   res.render('./index.ejs', data);
 })
 
@@ -69,8 +68,6 @@ app.post('/delete', function (req, res){
     
     connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
       if (err) { console.log('err: ' + err); } 
-
-      console.log(rows)
       
       give_data = {
         method: "delete",
@@ -84,33 +81,34 @@ app.post('/delete', function (req, res){
   
   
 // //PUTリクエスト
-// app.post('/put', function (req, res){
-//   var data_put = '';
+app.post('/put', function (req, res){
+  var data_put = '';
 
-//   req.on('data', function(chunk) {data_put += chunk})
-//   .on('end', function() {
-//     let todoItem_put = data_put.substr(5)
-//     //POSTの内容をデコード、日本語と空白に対応
-//     todoItem_put=decodeURIComponent(todoItem_put.replace(/\+/g, "%20"));
+  req.on('data', function(chunk) {data_put += chunk})
+  .on('end', function() {
+    //POSTの内容をデコード、日本語と空白に対応
+    data_put=decodeURIComponent(data_put.replace(/\+/g, "%20"));
+    let and_index = data_put.indexOf("&")
+    let put_id = data_put.substr(and_index + 4)
+    let content = data_put.substr(5, and_index - 5)
 
-//     if(todoItem_put.match(/_method=PUT/)){
-//       let content_num = todoItem_put.indexOf("&")
-//       let content=todoItem_put.substr(0,content_num);
-//       let id_num = todoItem_put.substr(content_num + 16);
-      
-//       // connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-//       //   if (err) { console.log('err: ' + err); } 
-//       //   if(rows[id_num]||rows[id_num-1]){
-//       //     html = html.toString().replace(rows[id_num-1].item,content)
-//       //   }
-//       //   res.end();
-//       // });
+
+    connection.query('UPDATE todoitems SET item=\"'+content+'\" WHERE id='+put_id+';', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+    });
     
-//     connection.query('UPDATE todoitems SET item=\"'+content+'\" WHERE id='+id_num+';', function (err, rows, fields) {
-//       if (err) { console.log('err: ' + err); } 
-//     });
-//     }
-//   })
-// });
+    connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+
+      give_data = {
+        method: "put",
+        rows: rows
+      };
+      
+      res.render('./index.ejs', give_data);
+    });
+  
+  })
+});
 
 app.listen(3000);

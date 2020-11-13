@@ -13,11 +13,16 @@
       <button type="submit">送信</button>
     </form>
     <div id="todolist">
-      <% if( method=== "post" || method=== "delete" ){ %> <% for (let row of
-      rows) { %>
+      <% if( method=== "post" || method=== "delete" || method=== "put" ){ %> <%
+      for (let row of rows) { %>
       <div class="todoItem"><%- row.item %></div>
       <form method="POST" action="delete">
         <input type="submit" value="削除" />
+        <input type="hidden" name="id" value="<%- row.id %>" />
+      </form>
+      <form method="POST" action="put">
+        <input type="text" name="name" />
+        <input type="submit" value="更新" />
         <input type="hidden" name="id" value="<%- row.id %>" />
       </form>
       <% } %> <% } %>
