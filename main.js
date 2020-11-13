@@ -7,7 +7,7 @@ var ejs = require('ejs');
 
 app.set("view engine", "ejs")
 
-let todoList = [];
+let give_data;
 
 //テーブルの初期化
 connection.query('truncate table todoitems;', function (err, rows, fields) {
@@ -41,12 +41,12 @@ app.post('/post', function (req, res) {
     connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
       if (err) { console.log('err: ' + err); } 
       
-      var data = {
+      give_data = {
         method: "post",
         rows: rows
       };
       
-      res.render('./index.ejs', data);
+      res.render('./index.ejs', give_data);
     })
   }) 
 });
@@ -54,37 +54,33 @@ app.post('/post', function (req, res) {
 
 
 // //DELETEリクエスト
-// app.post('/delete', function (req, res){
-  //   var data_delete = '';
-  
-  //   req.on('data', function(chunk) {data_delete += chunk})
-  //   .on('end', function() {
-    //     let todoItem_delete = data_delete.substr(5)
-    //     //POSTの内容をデコード、日本語と空白に対応
-    //     todoItem_delete=decodeURIComponent(todoItem_delete.replace(/\+/g, "%20"));
+app.post('/delete', function (req, res){
+  var data_delete = '';
+
+  req.on('data', function(chunk) {data_delete += chunk})
+  .on('end', function() {
+    let delete_id = data_delete.substr(3)
+    //POSTの内容をデコード、日本語と空白に対応
+    delete_id=decodeURIComponent(delete_id.replace(/\+/g, "%20"));
+
+    connection.query('DELETE FROM todoitems WHERE id='+delete_id+';', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+    });
     
-    //     let id=todoItem_delete.slice(13)
-    //     // connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-      //     //   if (err) { console.log('err: ' + err); } 
-      //     //   let del;
+    connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+
+      console.log(rows)
       
-      //     //   //HTMLを削除
-      //     //   if(rows[id]||rows[id-1]){
-        //     //     del = '<div class="todoItem">'+rows[id-1].item+'</div><form method="POST" action="delete"><input type="submit" value="削除" /><input type="hidden" name="_method" value="DELETE" /><input type="hidden" name="id" value="'+id+'" /></form><form method="POST" action="put"><input type="text" name="name" /><input type="submit" value="更新" /><input type="hidden" name="_method" value="PUT" /><input type="hidden" name="id" value="'+id+'" /></form>'
-        //     //     html = html.toString().replace(del,"");
-        //     //   }
-        //     // })
-        //     connection.query('UPDATE todoitems SET isdone=isdone+1 WHERE id='+id+';', function (err, rows, fields) {
-//       if (err) { console.log('err: ' + err); } 
-//     });
-    
-//     connection.query('DELETE FROM todoitems WHERE isdone=2;', function (err, rows, fields) {
-//       if (err) { console.log('err: ' + err); } 
-//     });
-    
-//     res.end();
-//   });
-// });
+      give_data = {
+        method: "delete",
+        rows: rows
+      };
+      
+      res.render('./index.ejs', give_data);
+    })
+  });
+});
   
   
 // //PUTリクエスト
