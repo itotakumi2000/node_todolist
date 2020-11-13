@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>TO DO LIST</h1>
+    <form action="post" method="POST" id="form-click">
+      <input type="text" name="name" />
+      <button type="submit">送信</button>
+    </form>
+    <div id="todolist">
+      <% if( method=== "post" ){ %> <% for (let row of rows) { %>
+      <div class="todoItem"><%- row.item %></div>
+      <form method="POST" action="main.js">
+        <input type="submit" value="削除" /><input
+          type="hidden"
+          name="_method"
+          value="DELETE"
+        /><input type="hidden" name="id" value="<%- row.id %>" />
+      </form>
+      <form method="POST" action="main.js">
+        <input type="text" name="name" /><input
+          type="submit"
+          value="更新"
+        /><input type="hidden" name="_method" value="PUT" /><input
+          type="hidden"
+          name="id"
+          value="<%- row.id %>"
+        />
+      </form>
+      <% } %> <% } %>
+    </div>
+  </body>
+</html>

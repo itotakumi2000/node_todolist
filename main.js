@@ -7,8 +7,6 @@ var ejs = require('ejs');
 
 app.set("view engine", "ejs")
 
-var read_indexfile = fs.readFileSync('./index.ejs', 'utf8');
-
 let todoList = [];
 
 //テーブルの初期化
@@ -18,15 +16,15 @@ connection.query('truncate table todoitems;', function (err, rows, fields) {
 
 //GETリクエスト
 app.get('/', function (req, res) {
-  var get_indexfile = ejs.render(read_indexfile, {});
 
-  res.writeHead(200, {'Content-Type' : 'text/html'});
-  res.write(get_indexfile);
-  res.end();
-});
+  var data = {
+    method: "get"
+  };
+  res.render('./index.ejs', data);
+})
 
 //POSTリクエスト
-app.post('/', function (req, res) {
+app.post('/post', function (req, res) {
   var data = '';
   
   req.on('data', function(chunk) {data += chunk})
@@ -35,20 +33,21 @@ app.post('/', function (req, res) {
     //POSTの内容をデコード、日本語と空白に対応
     todoItem=decodeURIComponent(todoItem.replace(/\+/g, "%20"));
     
-    //POSTメソッドの処理
-    connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows, fields) {
+    //データを挿入
+    connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows) {
       if (err) { console.log('err: ' + err); } 
-
-      var post_indexfile = ejs.render(read_indexfile, {
-        method:"post",
-        rows:rows,
-      });
-      
-      res.writeHead(303, { 'Location': '/' });
-      res.write(post_indexfile);
-      res.end();
     });
     
+    connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+      
+      var data = {
+        method: "post",
+        rows: rows
+      };
+      
+      res.render('./index.ejs', data);
+    })
   }) 
 });
 
