@@ -1,9 +1,6 @@
-var http = require('http');
 var connection = require('./mysql');
 var express = require("express");
 var app = express();
-var fs = require('fs');
-var ejs = require('ejs');
 
 app.set("view engine", "ejs")
 
@@ -17,10 +14,11 @@ connection.query('truncate table todoitems;', function (err, rows, fields) {
 //GETリクエスト
 app.get('/', function (req, res) {
 
-  var data = {
+  give_data = {
     method: "get"
   };
-  res.render('./index.ejs', data);
+  
+  res.render('./index.ejs', give_data);
 })
 
 //POSTリクエスト
@@ -29,7 +27,8 @@ app.post('/post', function (req, res) {
   
   req.on('data', function(chunk) {data += chunk})
   .on('end', function() {
-    let todoItem = data.substr(5)
+    let Item_position = 5
+    let todoItem = data.substr(Item_position)
     //POSTの内容をデコード、日本語と空白に対応
     todoItem=decodeURIComponent(todoItem.replace(/\+/g, "%20"));
     
@@ -51,26 +50,24 @@ app.post('/post', function (req, res) {
   }) 
 });
 
-
-
 // //DELETEリクエスト
 app.post('/delete', function (req, res){
   var data_delete = '';
 
   req.on('data', function(chunk) {data_delete += chunk})
   .on('end', function() {
-    let delete_id = data_delete.substr(3)
+    let delete_id_position = 3
+    let delete_id = data_delete.substr(delete_id_position)
     //POSTの内容をデコード、日本語と空白に対応
     delete_id=decodeURIComponent(delete_id.replace(/\+/g, "%20"));
 
+    //データを削除
     connection.query('DELETE FROM todoitems WHERE id='+delete_id+';', function (err, rows, fields) {
       if (err) { console.log('err: ' + err); } 
     });
     
     connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
       if (err) { console.log('err: ' + err); } 
-
-      console.log(rows)
       
       give_data = {
         method: "delete",
@@ -84,33 +81,39 @@ app.post('/delete', function (req, res){
   
   
 // //PUTリクエスト
-// app.post('/put', function (req, res){
-//   var data_put = '';
+app.post('/put', function (req, res){
+  var data_put = '';
 
-//   req.on('data', function(chunk) {data_put += chunk})
-//   .on('end', function() {
-//     let todoItem_put = data_put.substr(5)
-//     //POSTの内容をデコード、日本語と空白に対応
-//     todoItem_put=decodeURIComponent(todoItem_put.replace(/\+/g, "%20"));
+  req.on('data', function(chunk) {data_put += chunk})
+  .on('end', function() {
+    //POSTの内容をデコード、日本語と空白に対応
+    data_put=decodeURIComponent(data_put.replace(/\+/g, "%20"));
+    let and_index = data_put.indexOf("&")
 
-//     if(todoItem_put.match(/_method=PUT/)){
-//       let content_num = todoItem_put.indexOf("&")
-//       let content=todoItem_put.substr(0,content_num);
-//       let id_num = todoItem_put.substr(content_num + 16);
-      
-//       // connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-//       //   if (err) { console.log('err: ' + err); } 
-//       //   if(rows[id_num]||rows[id_num-1]){
-//       //     html = html.toString().replace(rows[id_num-1].item,content)
-//       //   }
-//       //   res.end();
-//       // });
+    let put_id_position = and_index + 4;
+    let put_id = data_put.substr(put_id_position)
+
+    let content_position_start = 5;
+    let number_to_cut = and_index - 5;
+    let content = data_put.substr(content_position_start, number_to_cut)
+
+    //データを更新
+    connection.query('UPDATE todoitems SET item=\"'+content+'\" WHERE id='+put_id+';', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+    });
     
-//     connection.query('UPDATE todoitems SET item=\"'+content+'\" WHERE id='+id_num+';', function (err, rows, fields) {
-//       if (err) { console.log('err: ' + err); } 
-//     });
-//     }
-//   })
-// });
+    connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+
+      give_data = {
+        method: "put",
+        rows: rows
+      };
+      
+      res.render('./index.ejs', give_data);
+    });
+  
+  })
+});
 
 app.listen(3000);
