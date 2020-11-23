@@ -8,17 +8,19 @@
   </head>
   <body>
     <h1>TO DO LIST</h1>
-    <form action="post" method="POST" id="form-click">
+    <form action="" method="POST" id="form-click">
       <input type="text" name="name" />
       <button type="submit">送信</button>
     </form>
     <div id="todolist">
-      <% if( method=== "post" || method=== "delete" ){ %> <% for (let row of
-      rows) { %>
+      <% if( method !== "get" ){ %> <% for (let row of rows) { %>
       <div class="todoItem"><%- row.item %></div>
-      <form method="POST" action="delete">
+      <form method="POST" action="<%- row.id %>">
         <input type="submit" value="削除" />
-        <input type="hidden" name="id" value="<%- row.id %>" />
+      </form>
+      <form method="POST" action="<%- row.id %>">
+        <input type="text" name="name" />
+        <input type="submit" value="更新" />
       </form>
       <% } %> <% } %>
     </div>
