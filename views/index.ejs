@@ -17,10 +17,12 @@
       <div class="todoItem"><%- row.item %></div>
       <form method="POST" action="<%- row.id %>">
         <input type="submit" value="削除" />
+        <input type="hidden" name="_method" value="delete" />
       </form>
       <form method="POST" action="<%- row.id %>">
         <input type="text" name="name" />
         <input type="submit" value="更新" />
+        <input type="hidden" name="_method" value="put" />
       </form>
       <% } %> <% } %>
     </div>
