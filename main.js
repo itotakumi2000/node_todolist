@@ -1,3 +1,4 @@
+
 var connection = require('./mysql');
 var express = require("express");
 const fs = require('fs');
@@ -41,68 +42,68 @@ app.post('/', function (req, res) {
     connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows) {
       if (err) { console.log('err: ' + err); } 
     });
-    connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-      if (err) { console.log('err: ' + err); } 
-      give_data = {
-        method: "post",
-        rows: rows
-      };
-      res.render('./index.ejs', give_data);
-    })
+    // connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+    //   if (err) { console.log('err: ' + err); } 
+    //   give_data = {
+    //     method: "post",
+    //     rows: rows
+    //   };
+    //   res.render('./index.ejs', give_data);
+    // })
   }) 
 });
 
 
 
-app.post('/:id', function (req, res){
-  let data = '';
+// app.post('/:id', function (req, res){
+//   let data = '';
   
-  req.on('data', function(chunk) {data += chunk})
-  .on('end', function() {
+//   req.on('data', function(chunk) {data += chunk})
+//   .on('end', function() {
 
-    //デコード、日本語と空白に対応
-    data=decodeURIComponent(data.replace(/\+/g, "%20"));
+//     //デコード、日本語と空白に対応
+//     data=decodeURIComponent(data.replace(/\+/g, "%20"));
     
-    if(data === "_method=delete"){
+//     if(data === "_method=delete"){
       
-      //deleteメソッド
-      connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
-        if (err) { console.log('err: ' + err); } 
-      });
+//       //deleteメソッド
+//       connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
+//         if (err) { console.log('err: ' + err); } 
+//       });
       
-      connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-        if (err) { console.log('err: ' + err); } 
-        give_data = {
-          method: "delete",
-          rows: rows
-        };
-        res.render('./index.ejs', give_data);
-      });
+//       connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+//         if (err) { console.log('err: ' + err); } 
+//         give_data = {
+//           method: "delete",
+//           rows: rows
+//         };
+//         res.render('./index.ejs', give_data);
+//       });
       
-    } else {
+//     } else {
       
-      //putメソッド
-      data = data.replace( /name=/g , "" ).replace( /&_method=put/g , "" ) ;
+//       //putメソッド
+//       data = data.replace( /name=/g , "" ).replace( /&_method=put/g , "" ) ;
 
-      //データを更新
-      connection.query('UPDATE todoitems SET item=\"'+data+'\" WHERE id='+req.params.id+';', function (err, rows, fields) {
-        if (err) { console.log('err: ' + err); } 
-      });
+//       //データを更新
+//       connection.query('UPDATE todoitems SET item=\"'+data+'\" WHERE id='+req.params.id+';', function (err, rows, fields) {
+//         if (err) { console.log('err: ' + err); } 
+//       });
       
-      connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-        if (err) { console.log('err: ' + err); } 
+//       connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+//         if (err) { console.log('err: ' + err); } 
     
-        give_data = {
-          method: "put",
-          rows: rows
-        };
+//         give_data = {
+//           method: "put",
+//           rows: rows
+//         };
         
-        res.render('./index.ejs', give_data);
-      });
+//         res.render('./index.ejs', give_data);
+//       });
       
-    }
-  });
+//     }
+//   });
   
-});
+// });
 
 app.listen(3000);

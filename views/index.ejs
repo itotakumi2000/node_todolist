@@ -14,18 +14,7 @@
       <button type="submit" id="post-button">送信</button>
     </form>
     <div id="todolist">
-      <% if( method !== "get" ){ %> <% for (let row of rows) { %>
-      <div class="todoItem" id="todoItem"><%- row.item %></div>
-      <form method="POST" action="<%- row.id %>">
-        <input type="submit" value="削除" />
-        <input type="hidden" name="_method" value="delete" />
-      </form>
-      <form method="POST" action="<%- row.id %>">
-        <input type="text" name="name" />
-        <input type="submit" value="更新" />
-        <input type="hidden" name="_method" value="put" />
-      </form>
-      <% } %> <% } %>
+      <div class="todoItem" id="todoItem"></div>
     </div>
     <script>
       $(function() {
@@ -36,6 +25,8 @@
             dataType: "json"
           })
             .done(function(data) {
+              let receive_item = document.getElementById("todoItem");
+              receive_item.textContent = data;
               console.log(data);
             })
             .fail(function(data, status, error) {
