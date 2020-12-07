@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
   </head>
   <body>
     <h1>TO DO LIST</h1>
-    <form action="" method="POST" id="form-click">
+    <form action="" method="POST" id="form">
       <input type="text" name="name" />
-      <button type="submit">送信</button>
+      <button type="submit" id="post-button">送信</button>
     </form>
     <div id="todolist">
       <% if( method !== "get" ){ %> <% for (let row of rows) { %>
-      <div class="todoItem"><%- row.item %></div>
+      <div class="todoItem" id="todoItem"><%- row.item %></div>
       <form method="POST" action="<%- row.id %>">
         <input type="submit" value="削除" />
         <input type="hidden" name="_method" value="delete" />
@@ -26,5 +27,22 @@
       </form>
       <% } %> <% } %>
     </div>
+    <script>
+      $(function() {
+        $("#form").on("submit", function() {
+          $.ajax({
+            url: "/api/v1/todoItem",
+            type: "GET",
+            dataType: "json"
+          })
+            .done(function(data) {
+              console.log(data);
+            })
+            .fail(function(data, status, error) {
+              console.log(error);
+            });
+        });
+      });
+    </script>
   </body>
 </html>

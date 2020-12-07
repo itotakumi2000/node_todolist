@@ -1,5 +1,6 @@
 var connection = require('./mysql');
 var express = require("express");
+const fs = require('fs');
 var app = express();
 app.set("view engine", "ejs")
 
@@ -17,6 +18,15 @@ app.get('/', function (req, res) {
   };
   res.render('./index.ejs', give_data);
 })
+
+
+app.get('/api/v1/todoItem', (req, res) => {
+  connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
+    if (err) { console.log('err: ' + err); } 
+    res.send(JSON.stringify(rows));
+  })
+});
+
 
 //POSTリクエスト
 app.post('/', function (req, res) {
@@ -41,6 +51,8 @@ app.post('/', function (req, res) {
     })
   }) 
 });
+
+
 
 app.post('/:id', function (req, res){
   let data = '';
