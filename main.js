@@ -1,11 +1,7 @@
-
 var connection = require('./mysql');
 var express = require("express");
-const fs = require('fs');
 var app = express();
 app.set("view engine", "ejs")
-
-let give_data;
 
 //テーブルの初期化
 connection.query('truncate table todoitems;', function (err, rows, fields) {
@@ -14,12 +10,8 @@ connection.query('truncate table todoitems;', function (err, rows, fields) {
 
 // //GETリクエスト
 app.get('/', function (req, res) {
-  give_data = {
-    method: "get"
-  };
-  res.render('./index.ejs', give_data);
+  res.render('./index.ejs');
 })
-
 
 app.get('/api/v1/todoItem', (req, res) => {
   connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
@@ -42,14 +34,6 @@ app.post('/', function (req, res) {
     connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows) {
       if (err) { console.log('err: ' + err); } 
     });
-    // connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-    //   if (err) { console.log('err: ' + err); } 
-    //   give_data = {
-    //     method: "post",
-    //     rows: rows
-    //   };
-    //   res.render('./index.ejs', give_data);
-    // })
   }) 
 });
 

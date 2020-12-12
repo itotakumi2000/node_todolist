@@ -13,9 +13,7 @@
       <input type="text" name="name" />
       <button type="submit" id="post-button">送信</button>
     </form>
-    <div id="todolist">
-      <div class="todoItem" id="todoItem"></div>
-    </div>
+    <div id="todolist"></div>
     <script>
       $(function() {
         $("#form").on("submit", function() {
@@ -25,9 +23,20 @@
             dataType: "json"
           })
             .done(function(data) {
-              let receive_item = document.getElementById("todoItem");
-              receive_item.textContent = data;
               console.log(data);
+              let receive_item = document.getElementById("todolist");
+
+              let new_element = document.createElement("div");
+              new_element.classList.add("todoItem");
+              new_element.setAttribute("id", "todoItem");
+
+              if (data[data.length - 1]) {
+                new_element.textContent = data[data.length - 1].item;
+              } else {
+                return;
+              }
+
+              receive_item.appendChild(new_element);
             })
             .fail(function(data, status, error) {
               console.log(error);
