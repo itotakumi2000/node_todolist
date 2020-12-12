@@ -9,7 +9,7 @@
   </head>
   <body>
     <h1>TO DO LIST</h1>
-    <form action="" method="POST" id="form">
+    <form action="" method="POST" id="form" name="form">
       <input type="text" name="name" />
       <button type="submit" id="post-button">送信</button>
     </form>
@@ -17,30 +17,45 @@
     <script>
       $(function() {
         $("#form").on("submit", function() {
+          let post_data = document.form.name.value;
+          document.form.name.value = "";
           $.ajax({
             url: "/api/v1/todoItem",
-            type: "GET",
-            dataType: "json"
+            type: "POST",
+            data: post_data
           })
             .done(function(data) {
-              console.log(data);
-              let receive_item = document.getElementById("todolist");
+              $.ajax({
+                url: "/api/v1/todoItems",
+                type: "GET",
+                dataType: "json"
+              })
+                .done(function(data) {
+                  let receive_item = document.getElementById("todolist");
 
-              let new_element = document.createElement("div");
-              new_element.classList.add("todoItem");
-              new_element.setAttribute("id", "todoItem");
+                  let div_element = document.createElement("div");
+                  div_element.classList.add("todoItem");
+                  div_element.textContent = data[data.length - 1].item;
+                  receive_item.appendChild(div_element);
 
-              if (data[data.length - 1]) {
-                new_element.textContent = data[data.length - 1].item;
-              } else {
-                return;
-              }
-
-              receive_item.appendChild(new_element);
+                  let input_element = document.createElement("input");
+                  input_element.setAttribute("type", "button");
+                  input_element.classList.add("delete_btn");
+                  let child_num = (receive_item.childElementCount + 1) / 2;
+                  input_element.setAttribute("id", child_num + "-delete");
+                  input_element.setAttribute("value", "削除");
+                  receive_item.appendChild(input_element);
+                })
+                .fail(function(data, status, error) {
+                  console.log(error);
+                });
             })
             .fail(function(data, status, error) {
               console.log(error);
             });
+        });
+        $(".delete_btn").on("click", function() {
+          alert("clicked");
         });
       });
     </script>

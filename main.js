@@ -8,35 +8,47 @@ connection.query('truncate table todoitems;', function (err, rows, fields) {
   if (err) { console.log('err: ' + err); } 
 });
 
-// //GETリクエスト
+// GETリクエスト
 app.get('/', function (req, res) {
   res.render('./index.ejs');
 })
 
-app.get('/api/v1/todoItem', (req, res) => {
+// read todoItems
+app.get('/api/v1/todoItems', (req, res) => {
   connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
     if (err) { console.log('err: ' + err); } 
     res.send(JSON.stringify(rows));
   })
 });
 
-
-//POSTリクエスト
 app.post('/', function (req, res) {
-  var data = '';
+  return;
+})
+
+// create todoItem
+app.post('/api/v1/todoItem', (req, res) => {
+  let data = '';
   req.on('data', function(chunk) {data += chunk})
   .on('end', function() {
-    let Item_position = 5
-    let todoItem = data.substr(Item_position)
-    //POSTの内容をデコード、日本語と空白に対応
-    todoItem=decodeURIComponent(todoItem.replace(/\+/g, "%20"));
     //データを挿入
-    connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + todoItem + '\', 0, now(), now());', function (err, rows) {
+    connection.query('insert into todoitems(item, isdone, creation, deadline) values (\' ' + data + '\', 0, now(), now());', function (err, rows) {
       if (err) { console.log('err: ' + err); } 
-    });
+    }); 
+
+    res.end();
   }) 
 });
 
+//deleteメソッド
+// app.delete('/api/v1/todoItems/:id', (req, res) => {
+
+//   connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
+//     if (err) { console.log('err: ' + err); } 
+//   });
+
+//   res.end();
+
+// });
 
 
 // app.post('/:id', function (req, res){
