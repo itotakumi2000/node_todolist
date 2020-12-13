@@ -8,7 +8,7 @@ connection.query('truncate table todoitems;', function (err, rows, fields) {
   if (err) { console.log('err: ' + err); } 
 });
 
-// GETリクエスト
+// read page
 app.get('/', function (req, res) {
   res.render('./index.ejs');
 })
@@ -39,67 +39,38 @@ app.post('/api/v1/todoItem', (req, res) => {
   }) 
 });
 
-//deleteメソッド
-// app.delete('/api/v1/todoItems/:id', (req, res) => {
-
-//   connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
-//     if (err) { console.log('err: ' + err); } 
-//   });
-
-//   res.end();
-
-// });
-
-
-// app.post('/:id', function (req, res){
-//   let data = '';
+// delete todoItem
+app.delete('/api/v1/todoItems/:id', (req, res) => {
   
-//   req.on('data', function(chunk) {data += chunk})
-//   .on('end', function() {
+  connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
+    if (err) { console.log('err: ' + err); } 
+  });
 
-//     //デコード、日本語と空白に対応
-//     data=decodeURIComponent(data.replace(/\+/g, "%20"));
-    
-//     if(data === "_method=delete"){
-      
-//       //deleteメソッド
-//       connection.query('DELETE FROM todoitems WHERE id='+req.params.id+';', function (err, rows, fields) {
-//         if (err) { console.log('err: ' + err); } 
-//       });
-      
-//       connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-//         if (err) { console.log('err: ' + err); } 
-//         give_data = {
-//           method: "delete",
-//           rows: rows
-//         };
-//         res.render('./index.ejs', give_data);
-//       });
-      
-//     } else {
-      
-//       //putメソッド
-//       data = data.replace( /name=/g , "" ).replace( /&_method=put/g , "" ) ;
+  connection.query('SET @i := 0;', function (err, rows, fields) {
+    if (err) { console.log('err: ' + err); } 
+  });
 
-//       //データを更新
-//       connection.query('UPDATE todoitems SET item=\"'+data+'\" WHERE id='+req.params.id+';', function (err, rows, fields) {
-//         if (err) { console.log('err: ' + err); } 
-//       });
-      
-//       connection.query('SELECT * FROM todoitems;', function (err, rows, fields) {
-//         if (err) { console.log('err: ' + err); } 
+  connection.query('UPDATE `todoitems` SET id = (@i := @i +1) ;', function (err, rows, fields) {
+    if (err) { console.log('err: ' + err); } 
+  });
+
+  res.end();
+
+});
+
+// update todoItem
+app.put('/api/v1/todoItems/:id', (req, res) => {
+  let data = '';
+  req.on('data', function(chunk) {data += chunk})
+  .on('end', function() {
     
-//         give_data = {
-//           method: "put",
-//           rows: rows
-//         };
-        
-//         res.render('./index.ejs', give_data);
-//       });
-      
-//     }
-//   });
-  
-// });
+    connection.query('UPDATE todoitems SET item=\"'+data+'\" WHERE id='+req.params.id+';', function (err, rows, fields) {
+      if (err) { console.log('err: ' + err); } 
+    });
+
+    res.end();
+  }) 
+
+});
 
 app.listen(3000);

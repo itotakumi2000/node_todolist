@@ -32,19 +32,26 @@
               })
                 .done(function(data) {
                   let receive_item = document.getElementById("todolist");
+                  receive_item.innerHTML = "";
+                  let div_element;
+                  let input_element;
+                  let child_element;
 
-                  let div_element = document.createElement("div");
-                  div_element.classList.add("todoItem");
-                  div_element.textContent = data[data.length - 1].item;
-                  receive_item.appendChild(div_element);
+                  for (i = 0; i < data.length; i++) {
+                    div_element = document.createElement("div");
+                    input_element = document.createElement("input");
+                    child_element = receive_item.childElementCount / 2 + 1;
 
-                  let input_element = document.createElement("input");
-                  input_element.setAttribute("type", "button");
-                  input_element.classList.add("delete_btn");
-                  let child_num = (receive_item.childElementCount + 1) / 2;
-                  input_element.setAttribute("id", child_num + "-delete");
-                  input_element.setAttribute("value", "削除");
-                  receive_item.appendChild(input_element);
+                    div_element.classList.add("todoItem");
+                    div_element.textContent = data[i].item;
+                    receive_item.appendChild(div_element);
+
+                    input_element.setAttribute("type", "submit");
+                    input_element.classList.add("delete_btn");
+                    input_element.setAttribute("id", child_element + "-delete");
+                    input_element.setAttribute("value", "削除");
+                    receive_item.appendChild(input_element);
+                  }
                 })
                 .fail(function(data, status, error) {
                   console.log(error);
@@ -54,9 +61,53 @@
               console.log(error);
             });
         });
-        $(".delete_btn").on("click", function() {
-          alert("clicked");
-        });
+
+        $(document)
+          .on("click", ".delete_btn", function(e) {
+            let id = $(this)
+              .attr("id")
+              .replace(/-delete/g, "");
+
+            $.ajax({
+              url: "/api/v1/todoItems/" + id,
+              type: "DELETE"
+            }).done(function(data) {
+              $.ajax({
+                url: "/api/v1/todoItems",
+                type: "GET",
+                dataType: "json"
+              })
+                .done(function(data) {
+                  let receive_item = document.getElementById("todolist");
+                  receive_item.innerHTML = "";
+                  let div_element;
+                  let input_element;
+                  let child_element;
+
+                  for (i = 0; i < data.length; i++) {
+                    div_element = document.createElement("div");
+                    input_element = document.createElement("input");
+                    child_element = receive_item.childElementCount / 2 + 1;
+
+                    div_element.classList.add("todoItem");
+                    div_element.textContent = data[i].item;
+                    receive_item.appendChild(div_element);
+
+                    input_element.setAttribute("type", "submit");
+                    input_element.classList.add("delete_btn");
+                    input_element.setAttribute("id", child_element + "-delete");
+                    input_element.setAttribute("value", "削除");
+                    receive_item.appendChild(input_element);
+                  }
+                })
+                .fail(function(data, status, error) {
+                  console.log(error);
+                });
+            });
+          })
+          .fail(function(data, status, error) {
+            console.log(error);
+          });
       });
     </script>
   </body>
