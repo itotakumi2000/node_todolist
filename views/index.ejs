@@ -10,15 +10,15 @@
   <body>
     <h1>TO DO LIST</h1>
     <form action="" method="POST" id="form" name="form">
-      <input type="text" name="name" />
+      <input type="text" name="post_form" />
       <button type="submit" id="post-button">送信</button>
     </form>
     <div id="todolist"></div>
     <script>
       $(function() {
         $("#form").on("submit", function() {
-          let post_data = document.form.name.value;
-          document.form.name.value = "";
+          let post_data = document.form.post_form.value;
+          document.form.post_form.value = "";
           $.ajax({
             url: "/api/v1/todoItem",
             type: "POST",
@@ -33,24 +33,41 @@
                 .done(function(data) {
                   let receive_item = document.getElementById("todolist");
                   receive_item.innerHTML = "";
-                  let div_element;
-                  let input_element;
-                  let child_element;
-
+                  let todoItem_element;
+                  let delete_element;
+                  let child_element_num;
+                  let put_text;
+                  let put_button;
+                  let put_form;
                   for (i = 0; i < data.length; i++) {
-                    div_element = document.createElement("div");
-                    input_element = document.createElement("input");
-                    child_element = receive_item.childElementCount / 2 + 1;
+                    todoItem_element = document.createElement("div");
+                    todoItem_element.classList.add("todoItem");
+                    todoItem_element.textContent = data[i].item;
+                    receive_item.appendChild(todoItem_element);
+                    child_element_num =
+                      (receive_item.childElementCount + 2) / 3;
+                    delete_element = document.createElement("input");
+                    delete_element.setAttribute("type", "submit");
+                    delete_element.classList.add("delete_btn");
+                    delete_element.setAttribute(
+                      "id",
+                      child_element_num + "-delete"
+                    );
+                    delete_element.setAttribute("value", "削除");
+                    receive_item.appendChild(delete_element);
 
-                    div_element.classList.add("todoItem");
-                    div_element.textContent = data[i].item;
-                    receive_item.appendChild(div_element);
-
-                    input_element.setAttribute("type", "submit");
-                    input_element.classList.add("delete_btn");
-                    input_element.setAttribute("id", child_element + "-delete");
-                    input_element.setAttribute("value", "削除");
-                    receive_item.appendChild(input_element);
+                    put_form = document.createElement("form");
+                    receive_item.appendChild(put_form);
+                    put_text = document.createElement("input");
+                    put_text.setAttribute("type", "text");
+                    put_text.setAttribute("name", "put_form");
+                    put_form.appendChild(put_text);
+                    put_button = document.createElement("input");
+                    put_button.setAttribute("type", "submit");
+                    put_button.setAttribute("value", "更新");
+                    put_button.classList.add("put_btn");
+                    put_button.setAttribute("id", child_element_num + "-put");
+                    put_form.appendChild(put_button);
                   }
                 })
                 .fail(function(data, status, error) {
@@ -63,11 +80,10 @@
         });
 
         $(document)
-          .on("click", ".delete_btn", function(e) {
+          .on("click", ".delete_btn", function() {
             let id = $(this)
               .attr("id")
               .replace(/-delete/g, "");
-
             $.ajax({
               url: "/api/v1/todoItems/" + id,
               type: "DELETE"
@@ -80,24 +96,105 @@
                 .done(function(data) {
                   let receive_item = document.getElementById("todolist");
                   receive_item.innerHTML = "";
-                  let div_element;
-                  let input_element;
-                  let child_element;
-
+                  let todoItem_element;
+                  let delete_element;
+                  let child_element_num;
+                  let put_text;
+                  let put_button;
+                  let put_form;
                   for (i = 0; i < data.length; i++) {
-                    div_element = document.createElement("div");
-                    input_element = document.createElement("input");
-                    child_element = receive_item.childElementCount / 2 + 1;
-
-                    div_element.classList.add("todoItem");
-                    div_element.textContent = data[i].item;
-                    receive_item.appendChild(div_element);
-
-                    input_element.setAttribute("type", "submit");
-                    input_element.classList.add("delete_btn");
-                    input_element.setAttribute("id", child_element + "-delete");
-                    input_element.setAttribute("value", "削除");
-                    receive_item.appendChild(input_element);
+                    todoItem_element = document.createElement("div");
+                    todoItem_element.classList.add("todoItem");
+                    todoItem_element.textContent = data[i].item;
+                    receive_item.appendChild(todoItem_element);
+                    child_element_num =
+                      (receive_item.childElementCount + 2) / 3;
+                    delete_element = document.createElement("input");
+                    delete_element.setAttribute("type", "submit");
+                    delete_element.classList.add("delete_btn");
+                    delete_element.setAttribute(
+                      "id",
+                      child_element_num + "-delete"
+                    );
+                    delete_element.setAttribute("value", "削除");
+                    receive_item.appendChild(delete_element);
+                    put_form = document.createElement("form");
+                    receive_item.appendChild(put_form);
+                    put_text = document.createElement("input");
+                    put_text.setAttribute("type", "text");
+                    put_text.setAttribute("name", "put_form");
+                    put_form.appendChild(put_text);
+                    put_button = document.createElement("input");
+                    put_button.setAttribute("type", "submit");
+                    put_button.setAttribute("value", "更新");
+                    put_button.classList.add("put_btn");
+                    put_button.setAttribute("id", child_element_num + "-put");
+                    put_form.appendChild(put_button);
+                  }
+                })
+                .fail(function(data, status, error) {
+                  console.log(error);
+                });
+            });
+          })
+          .fail(function(data, status, error) {
+            console.log(error);
+          });
+        $(document)
+          .on("click", ".put_btn", function() {
+            alert("yes!");
+            let put_data = document.form.put_form.value;
+            document.form.put_form.value = "";
+            let id = $(this)
+              .attr("id")
+              .replace(/-put/g, "");
+            $.ajax({
+              url: "/api/v1/todoItems/" + id,
+              type: "PUT",
+              data: put_data
+            }).done(function(data) {
+              $.ajax({
+                url: "/api/v1/todoItems",
+                type: "GET",
+                dataType: "json"
+              })
+                .done(function(data) {
+                  let receive_item = document.getElementById("todolist");
+                  receive_item.innerHTML = "";
+                  let todoItem_element;
+                  let delete_element;
+                  let child_element_num;
+                  let put_text;
+                  let put_button;
+                  let put_form;
+                  for (i = 0; i < data.length; i++) {
+                    todoItem_element = document.createElement("div");
+                    todoItem_element.classList.add("todoItem");
+                    todoItem_element.textContent = data[i].item;
+                    receive_item.appendChild(todoItem_element);
+                    child_element_num =
+                      (receive_item.childElementCount + 2) / 3;
+                    delete_element = document.createElement("input");
+                    delete_element.setAttribute("type", "submit");
+                    delete_element.classList.add("delete_btn");
+                    delete_element.setAttribute(
+                      "id",
+                      child_element_num + "-delete"
+                    );
+                    delete_element.setAttribute("value", "削除");
+                    receive_item.appendChild(delete_element);
+                    put_form = document.createElement("form");
+                    receive_item.appendChild(put_form);
+                    put_text = document.createElement("input");
+                    put_text.setAttribute("type", "text");
+                    put_text.setAttribute("name", "put_form");
+                    put_form.appendChild(put_text);
+                    put_button = document.createElement("input");
+                    put_button.setAttribute("type", "submit");
+                    put_button.setAttribute("value", "更新");
+                    put_button.classList.add("put_btn");
+                    put_button.setAttribute("id", child_element_num + "-put");
+                    put_form.appendChild(put_button);
                   }
                 })
                 .fail(function(data, status, error) {
