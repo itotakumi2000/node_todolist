@@ -14,7 +14,7 @@
       <button type="submit" id="post-button">送信</button>
     </form>
     <div id="todolist"></div>
-    <script>
+    <script type="text/javascript">
       $(function() {
         $("#form").on("submit", function() {
           let post_data = document.form.post_form.value;
@@ -55,7 +55,6 @@
                     );
                     delete_element.setAttribute("value", "削除");
                     receive_item.appendChild(delete_element);
-
                     put_form = document.createElement("form");
                     receive_item.appendChild(put_form);
                     put_text = document.createElement("input");
@@ -78,16 +77,19 @@
               console.log(error);
             });
         });
-
-        $(document)
-          .on("click", ".delete_btn", function() {
-            let id = $(this)
-              .attr("id")
-              .replace(/-delete/g, "");
-            $.ajax({
-              url: "/api/v1/todoItems/" + id,
-              type: "DELETE"
-            }).done(function(data) {
+        $(document).on("click", ".put_btn", function() {
+          alert("Clicked_put");
+          let put_data = document.form.put_form.value;
+          document.form.put_form.value = "";
+          let id = $(this)
+            .attr("id")
+            .replace(/-put/g, "");
+          $.ajax({
+            url: "/api/v1/todoItems/" + id,
+            type: "PUT",
+            data: put_data
+          })
+            .done(function(data) {
               $.ajax({
                 url: "/api/v1/todoItems",
                 type: "GET",
@@ -135,23 +137,20 @@
                 .fail(function(data, status, error) {
                   console.log(error);
                 });
+            })
+            .fail(function(data, status, error) {
+              console.log(error);
             });
-          })
-          .fail(function(data, status, error) {
-            console.log(error);
-          });
+        });
         $(document)
-          .on("click", ".put_btn", function() {
-            alert("yes!");
-            let put_data = document.form.put_form.value;
-            document.form.put_form.value = "";
+          .on("click", ".delete_btn", function() {
+            alert("Clicked_delete");
             let id = $(this)
               .attr("id")
-              .replace(/-put/g, "");
+              .replace(/-delete/g, "");
             $.ajax({
               url: "/api/v1/todoItems/" + id,
-              type: "PUT",
-              data: put_data
+              type: "DELETE"
             }).done(function(data) {
               $.ajax({
                 url: "/api/v1/todoItems",
